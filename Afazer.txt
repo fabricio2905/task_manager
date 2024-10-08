@@ -1,0 +1,9 @@
+
+- tela de login
+- puxar o usuário do login
+- interface parecida com a do windows *opcional
+- separar por colunas
+- valores aleatorios e os fixos
+- aparecer só um cada 5 segundos?
+- tudo no BD
+- 

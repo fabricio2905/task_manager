@@ -6,4 +6,4 @@
 - valores aleatorios e os fixos
 - aparecer só um cada 5 segundos?
 - tudo no BD
-- 
+- registrar tela de login - fazer tela

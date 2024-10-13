@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Tarefas Simples</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Gerenciador de Tarefas</h1>
+
+    <!-- Formulário para adicionar um processo -->
+    <div class="process-form">
+        <label for="nome">Nome do Processo:</label>
+        <input type="text" id="nome" placeholder="Digite o nome do processo">
+
+        <label for="prioridade">Prioridade:</label>
+        <select id="prioridade">
+            <option value="Alta">Alta</option>
+            <option value="Média">Média</option>
+            <option value="Baixa">Baixa</option>
+        </select>
+
+        <label for="disco">Disco:</label>
+        <input type="number" id="disco" placeholder="Digite o Disco em MB">
+
+        <button onclick="adicionarProcesso()">Adicionar Processo</button>
+    </div>
+
+    <!-- Lista de processos -->
+    <h2>Processos Ativos</h2>
+    <ul id="lista-processos"></ul>
+
+    <script src="script.js"></script>
+</body>
+</html>

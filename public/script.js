@@ -15,19 +15,35 @@ function adicionarProcesso() {
     const nome = document.getElementById('nome').value;
     const disco = document.getElementById('disco').value;
     const prioridade = document.getElementById('prioridade').value;
-
+    
     if (nome && disco) {
         const processo = {
             pid: nome,
             usoCpu: gerarUsoCPU(),
             usoMemoria: gerarUsoMemoria(),
-            estado: 'Pronto',
-            prioridade: prioridade,
             disco: disco,
-            tempoEmEspera: 0 // Novo campo para controlar o tempo em espera
+            prioridade: prioridade,
+            estado: 'Pronto',
         };
-        processos.push(processo);
-        atualizarLista();
+
+        // Enviar os dados do processo para o servidor
+        fetch('/add-processo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(processo)
+        })
+        .then(response => {
+            if (response.ok) {
+                // Após adicionar com sucesso, carregar novamente os processos
+                carregarProcessos();
+                limparFormulario();
+            } else {
+                return response.text().then(text => { throw new Error(text) });
+            }
+        })
+        .catch(error => console.error('Erro:', error));
     } else {
         alert('Por favor, preencha todos os campos.');
     }
@@ -40,60 +56,94 @@ function atualizarLista() {
 
     processos.forEach((processo) => {
         const li = document.createElement('li');
-        li.innerHTML = `${processo.pid} CPU: ${processo.usoCpu}% - Memória: ${processo.usoMemoria}MB - Disco: ${processo.disco}MB - Prioridade: ${processo.prioridade} <span class="estado">${processo.estado}</span>`;
+        li.innerHTML = `${processo.pid} | CPU: ${processo.usoCpu}% - Memória: ${processo.usoMemoria}MB - Disco: ${processo.disco}MB - Prioridade: ${processo.prioridade} - Usuário: ${processo.usuario} <span class="estado">${processo.estado}</span>`;
         
+        const btnRemover = document.createElement('button');
+        btnRemover.textContent = 'Remover';
+        btnRemover.onclick = () => removerProcesso(processo.id);
+        li.appendChild(btnRemover);
+
         listaProcessos.appendChild(li);
     });
 }
 
+// Função para limpar os campos do formulário
+function limparFormulario() {
+    document.getElementById('nome').value = '';
+    document.getElementById('disco').value = '';
+    document.getElementById('prioridade').value = 'Média';  // Ou o valor padrão que você deseja
+}
+
+// Função para carregar processos do backend ao iniciar
+function carregarProcessos() {
+    fetch('/processos')
+        .then(response => response.json())
+        .then(data => {
+            processos = data;
+            atualizarLista();
+        })
+        .catch(error => console.error('Erro ao carregar processos:', error));
+}
+
+// Chama a função para carregar processos quando a página for carregada
+window.onload = carregarProcessos;
+
+// Função para remover um processo (opcional)
+function removerProcesso(id) {
+    fetch(`/processos/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            // Remove o processo da lista localmente
+            processos = processos.filter(processo => processo.id !== id);
+            atualizarLista();
+        } else {
+            return response.text().then(text => { throw new Error(text) });
+        }
+    })
+    .catch(error => console.error('Erro ao remover processo:', error));
+}
+
 // Função para alterar estados automaticamente a cada 5 segundos
 function alterarEstados() {
-    // Se um processo está em execução, mudar seu estado
     if (processoEmExecucao) {
         let estadoAleatorio = Math.random() > 0.5 ? 'Espera' : 'Pronto'; // 50% de chance
         processoEmExecucao.estado = estadoAleatorio;
 
-        // Se o estado foi mudado para "Espera", agendar mudança para "Pronto" após 5 a 10 segundos
         if (estadoAleatorio === 'Espera') {
-            // Inicia o contador de tempo em espera
-            processoEmExecucao.tempoEmEspera = 0; // Reseta o contador
+            processoEmExecucao.tempoEmEspera = 0;
 
-            // Faz a mudança para "Pronto" após 5 a 10 segundos
             let tempoEspera = Math.random() * 5000 + 5000; // 5 a 10 segundos
             setTimeout(() => {
                 if (processoEmExecucao.estado === 'Espera') {
-                    processoEmExecucao.estado = 'Pronto'; // Muda para Pronto
+                    processoEmExecucao.estado = 'Pronto';
+                    atualizarLista();
                 }
-                atualizarLista();
             }, tempoEspera);
         }
-        processoEmExecucao = null; // Limpa a referência ao processo em execução
+        processoEmExecucao = null;
     }
 
-    // Seleciona processos que estão em "Pronto" para serem executados
     let processosProntos = processos.filter(p => p.estado === 'Pronto');
 
     if (processosProntos.length > 0) {
-        // Escolhe um processo aleatório para execução
         let proximoExecucao = processosProntos[Math.floor(Math.random() * processosProntos.length)];
         proximoExecucao.estado = 'Execução';
         processoEmExecucao = proximoExecucao;
     }
 
-    // Processos que estão em "Espera" e ultrapassaram 10 segundos devem voltar a "Pronto"
     processos.forEach(processo => {
         if (processo.estado === 'Espera') {
-            processo.tempoEmEspera += 5; // Incrementa o tempo em espera
-            if (processo.tempoEmEspera >= 10) { // Se ultrapassar 10 segundos
-                processo.estado = 'Pronto'; // Muda para "Pronto"
+            processo.tempoEmEspera += 5;
+            if (processo.tempoEmEspera >= 10) {
+                processo.estado = 'Pronto';
                 atualizarLista();
             }
         }
     });
 
-    // Atualiza a lista de processos na interface
     atualizarLista();
 }
 
-// Inicia a atualização automática a cada 5 segundos
 setInterval(alterarEstados, 5000);

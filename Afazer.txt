@@ -1,9 +1,8 @@
 
-- tela de login
-- puxar o usuário do login
-- interface parecida com a do windows *opcional
-- separar por colunas
-- valores aleatorios e os fixos
-- aparecer só um cada 5 segundos?
-- tudo no BD
-- registrar tela de login - fazer tela
+- puxar o usuário do login no usuário do processo
+- os processos serem adicionados no bd 
+- opção de excluir um processo
+
+
+
+- interface parecida com a do windows *opcional - separar por colunas

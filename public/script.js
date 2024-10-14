@@ -1,16 +1,14 @@
 let processos = [];
 let processoEmExecucao = null;
 
-// Função para gerar uso de CPU aleatório
 function gerarUsoCPU() {
-    return Math.floor(Math.random() * 100); // Entre 0 e 100%
+    return Math.floor(Math.random() * 100);
 }
 
 function gerarUsoMemoria() {
-    return Math.floor(Math.random() * 1000); // Entre 0 e 1000MB
+    return Math.floor(Math.random() * 1000);
 }
 
-// Função para adicionar um processo
 function adicionarProcesso() {
     const nome = document.getElementById('nome').value;
     const disco = document.getElementById('disco').value;
@@ -18,11 +16,13 @@ function adicionarProcesso() {
     
     if (nome && disco) {
         const processo = {
+            id: Date.now(),
             pid: nome,
             usoCpu: gerarUsoCPU(),
             usoMemoria: gerarUsoMemoria(),
             disco: disco,
             prioridade: prioridade,
+            usuario: '',
             estado: 'Pronto',
         };
 
@@ -36,7 +36,6 @@ function adicionarProcesso() {
         })
         .then(response => {
             if (response.ok) {
-                // Após adicionar com sucesso, carregar novamente os processos
                 carregarProcessos();
                 limparFormulario();
             } else {
@@ -49,46 +48,27 @@ function adicionarProcesso() {
     }
 }
 
-// Função para atualizar a lista de processos na interface
 function atualizarLista() {
     const listaProcessos = document.getElementById('lista-processos');
     listaProcessos.innerHTML = '';
 
     processos.forEach((processo) => {
-        const li = document.createElement('li');
-        li.innerHTML = `${processo.pid} | CPU: ${processo.usoCpu}% - Memória: ${processo.usoMemoria}MB - Disco: ${processo.disco}MB - Prioridade: ${processo.prioridade} - Usuário: ${processo.usuario} <span class="estado">${processo.estado}</span>`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${processo.pid}</td>
+            <td>${processo.usoCpu}%</td>
+            <td>${processo.usoMemoria}MB</td>
+            <td>${processo.disco}MB</td>
+            <td>${processo.prioridade}</td>
+            <td>${processo.usuario}</td>
+            <td><span class="estado">${processo.estado}</span></td>
+            <td><button class="remover" onclick="removerProcesso(${processo.id})">Remover</button></td>
+        `;
         
-        const btnRemover = document.createElement('button');
-        btnRemover.textContent = 'Remover';
-        btnRemover.onclick = () => removerProcesso(processo.id);
-        li.appendChild(btnRemover);
-
-        listaProcessos.appendChild(li);
+        listaProcessos.appendChild(tr);
     });
 }
 
-// Função para limpar os campos do formulário
-function limparFormulario() {
-    document.getElementById('nome').value = '';
-    document.getElementById('disco').value = '';
-    document.getElementById('prioridade').value = 'Média';  // Ou o valor padrão que você deseja
-}
-
-// Função para carregar processos do backend ao iniciar
-function carregarProcessos() {
-    fetch('/processos')
-        .then(response => response.json())
-        .then(data => {
-            processos = data;
-            atualizarLista();
-        })
-        .catch(error => console.error('Erro ao carregar processos:', error));
-}
-
-// Chama a função para carregar processos quando a página for carregada
-window.onload = carregarProcessos;
-
-// Função para remover um processo (opcional)
 function removerProcesso(id) {
     fetch(`/processos/${id}`, {
         method: 'DELETE'
@@ -105,16 +85,36 @@ function removerProcesso(id) {
     .catch(error => console.error('Erro ao remover processo:', error));
 }
 
+function limparFormulario() {
+    document.getElementById('nome').value = '';
+    document.getElementById('disco').value = '';
+    document.getElementById('prioridade').value = 'Média';
+}
+
+// carregar processos do backend ao iniciar
+function carregarProcessos() {
+    fetch('/processos')
+        .then(response => response.json())
+        .then(data => {
+            processos = data;
+            atualizarLista();
+        })
+        .catch(error => console.error('Erro ao carregar processos:', error));
+}
+
+// aqui chama a função para carregar processos quando a página for carregada
+window.onload = carregarProcessos;
+
 // Função para alterar estados automaticamente a cada 5 segundos
 function alterarEstados() {
     if (processoEmExecucao) {
-        let estadoAleatorio = Math.random() > 0.5 ? 'Espera' : 'Pronto'; // 50% de chance
+        let estadoAleatorio = Math.random() > 0.5 ? 'Espera' : 'Pronto';
         processoEmExecucao.estado = estadoAleatorio;
 
         if (estadoAleatorio === 'Espera') {
             processoEmExecucao.tempoEmEspera = 0;
 
-            let tempoEspera = Math.random() * 5000 + 5000; // 5 a 10 segundos
+            let tempoEspera = Math.random() * 5000; // 5 segundos
             setTimeout(() => {
                 if (processoEmExecucao.estado === 'Espera') {
                     processoEmExecucao.estado = 'Pronto';

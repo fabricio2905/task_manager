@@ -12,7 +12,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: url(img.jpg) no-repeat;
+    /*background: url(img.jpg) no-repeat;*/
+    background: linear-gradient( rgba(97,9,121,1), rgba(158,0,255,1));
     background-size: cover;
     background-position: center;
 

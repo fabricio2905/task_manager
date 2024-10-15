@@ -1,26 +1,25 @@
-// Banco de dados
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./database.db'); 
+const db = new sqlite3.Database('database.db');
 
+// Criar tabela de usuários
 db.serialize(() => {
-    // Tabela de usuários
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL
-    )`);
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL
+  )`);
 
-    // Tabela de processos 
-    db.run(`CREATE TABLE IF NOT EXISTS processos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        pid TEXT,
-        usoCpu INTEGER,
-        usoMemoria INTEGER,
-        disco INTEGER,
-        prioridade TEXT,
-        estado TEXT,
-        usuario TEXT
-    )`);
+  // Criar tabela de processos
+  db.run(`CREATE TABLE IF NOT EXISTS processos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pid TEXT,
+    usoCpu INTEGER,
+    usoMemoria INTEGER,
+    disco INTEGER,
+    prioridade TEXT,
+    estado TEXT,
+    usuario TEXT
+  )`);
 });
 
 module.exports = db;

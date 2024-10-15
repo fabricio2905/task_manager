@@ -12,6 +12,7 @@ db.serialize(() => {
   // Criar tabela de processos
   db.run(`CREATE TABLE IF NOT EXISTS processos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT,
     pid TEXT,
     usoCpu INTEGER,
     usoMemoria INTEGER,

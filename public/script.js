@@ -1,6 +1,10 @@
 let processos = [];
 let processoEmExecucao = null;
 
+function gerarPid() {
+    return Math.floor(Math.random() * 15000);
+}
+
 function gerarUsoCPU() {
     return Math.floor(Math.random() * 100);
 }
@@ -17,13 +21,14 @@ function adicionarProcesso() {
     if (nome && disco) {
         const processo = {
             id: Date.now(),
-            pid: nome,
+            nome: nome,
+            pid: gerarPid(),
             usoCpu: gerarUsoCPU(),
             usoMemoria: gerarUsoMemoria(),
             disco: disco,
             prioridade: prioridade,
             usuario: '',
-            estado: 'Pronto',
+            estado: 'Início',
         };
 
         // Enviar os dados do processo para o servidor
@@ -55,6 +60,7 @@ function atualizarLista() {
     processos.forEach((processo) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
+            <td>${processo.nome}</td>
             <td>${processo.pid}</td>
             <td>${processo.usoCpu}%</td>
             <td>${processo.usoMemoria}MB</td>
@@ -125,7 +131,7 @@ function alterarEstados() {
         processoEmExecucao = null;
     }
 
-    let processosProntos = processos.filter(p => p.estado === 'Pronto');
+    let processosProntos = processos.filter(p => p.estado === 'Início');
 
     if (processosProntos.length > 0) {
         let proximoExecucao = processosProntos[Math.floor(Math.random() * processosProntos.length)];

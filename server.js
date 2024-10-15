@@ -38,7 +38,7 @@ app.post('/login', (req, res) => {
 
 // Rota para adicionar um processo
 app.post('/add-processo', (req, res) => {
-  const { pid, usoCpu, usoMemoria, disco, prioridade, estado } = req.body;
+  const { nome, pid, usoCpu, usoMemoria, disco, prioridade, estado } = req.body;
   
   // Recuperar o nome do usuário logado da sessão
   const usuario = req.session.usuario;
@@ -49,8 +49,8 @@ app.post('/add-processo', (req, res) => {
   }
 
   // Inserir o processo no banco de dados com o nome do usuário
-  db.run(`INSERT INTO processos (pid, usoCpu, usoMemoria, disco, prioridade, estado, usuario) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [pid, usoCpu, usoMemoria, disco, prioridade, estado, usuario], function (err) {
+  db.run(`INSERT INTO processos (nome, pid, usoCpu, usoMemoria, disco, prioridade, estado, usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [nome, pid, usoCpu, usoMemoria, disco, prioridade, estado, usuario], function (err) {
           if (err) {
               console.error(err);
               res.status(500).send('Erro ao salvar o processo no banco de dados');
@@ -91,5 +91,5 @@ app.delete('/processos/:id', (req, res) => {
 
 // Inicializar o servidor
 app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+    console.log(`Servidor rodando em http://localhost:${port}/login.html`);
 });

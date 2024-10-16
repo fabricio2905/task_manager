@@ -63,7 +63,7 @@ tbody tr:hover {
     background-color: #3e3e3e; 
 }
 
-button.remover {
+button.finalizar {
     background-color: #dc3545; 
     color: white;
     border: none;
@@ -72,6 +72,6 @@ button.remover {
     border-radius: 4px;
 }
 
-button.remover:hover {
+button.finalizar:hover {
     background-color: #c82333;
 }

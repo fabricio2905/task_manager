@@ -68,14 +68,14 @@ function atualizarLista() {
             <td>${processo.prioridade}</td>
             <td>${processo.usuario}</td>
             <td><span class="estado">${processo.estado}</span></td>
-            <td><button class="remover" onclick="removerProcesso(${processo.id})">Remover</button></td>
+            <td><button class="finalizar" onclick="finalizarProcesso(${processo.id})">Finalizar Tarefa</button></td>
         `;
         
         listaProcessos.appendChild(tr);
     });
 }
 
-function removerProcesso(id) {
+function finalizarProcesso(id) {
     fetch(`/processos/${id}`, {
         method: 'DELETE'
     })
@@ -88,7 +88,7 @@ function removerProcesso(id) {
             return response.text().then(text => { throw new Error(text) });
         }
     })
-    .catch(error => console.error('Erro ao remover processo:', error));
+    .catch(error => console.error('Erro ao finalizar processo:', error));
 }
 
 function limparFormulario() {

@@ -76,26 +76,40 @@ function atualizarLista() {
 }
 
 function finalizarProcesso(id) {
-    fetch(`/processos/${id}`, {
-        method: 'DELETE'
-    })
-    .then(response => {
-        if (response.ok) {
-            // Remove o processo da lista localmente
-            processos = processos.filter(processo => processo.id !== id);
+    // Localiza o processo a ser finalizado
+    let processo = processos.find(p => p.id === id);
+
+    if (processo) {
+        // Muda o estado do processo para "Término"
+        processo.estado = 'Término';
+        atualizarLista();
+
+        // Aguarda 5 segundos antes de remover o processo
+        setTimeout(() => {
+            // Remove o processo do frontend
+            processos = processos.filter(p => p.id !== id);
             atualizarLista();
-        } else {
-            return response.text().then(text => { throw new Error(text) });
-        }
-    })
-    .catch(error => console.error('Erro ao finalizar processo:', error));
+
+            // Remove o processo do backend
+            fetch(`/processos/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+            })
+            .catch(error => console.error('Erro ao finalizar processo:', error));
+        }, 5000); // 5 segundos no estado "Término"
+    }
 }
 
-function limparFormulario() {
+
+/*function limparFormulario() {
     document.getElementById('nome').value = '';
     document.getElementById('disco').value = '';
     document.getElementById('prioridade').value = 'Média';
-}
+}*/
 
 // carregar processos do backend ao iniciar
 function carregarProcessos() {
@@ -113,14 +127,15 @@ window.onload = carregarProcessos;
 
 // Função para alterar estados automaticamente a cada 5 segundos
 function alterarEstados() {
+    // Verifica se há um processo em execução
     if (processoEmExecucao) {
         let estadoAleatorio = Math.random() > 0.5 ? 'Espera' : 'Pronto';
         processoEmExecucao.estado = estadoAleatorio;
 
+        // Se o processo foi para "Espera", ele volta para "Pronto" após 5 segundos
         if (estadoAleatorio === 'Espera') {
             processoEmExecucao.tempoEmEspera = 0;
-
-            let tempoEspera = Math.random() * 5000; // 5 segundos
+            let tempoEspera = 5000; // 5 segundos
             setTimeout(() => {
                 if (processoEmExecucao.estado === 'Espera') {
                     processoEmExecucao.estado = 'Pronto';
@@ -128,17 +143,30 @@ function alterarEstados() {
                 }
             }, tempoEspera);
         }
+
         processoEmExecucao = null;
     }
 
-    let processosProntos = processos.filter(p => p.estado === 'Início');
+    // Verifica processos no estado "Início" e move para "Pronto" após 5 segundos
+    let processosInicio = processos.filter(p => p.estado === 'Início');
+    processosInicio.forEach(processo => {
+        setTimeout(() => {
+            processo.estado = 'Pronto';
+            atualizarLista();
+        }, 5000); // Muda de "Início" para "Pronto" após 5 segundos
+    });
 
-    if (processosProntos.length > 0) {
+    // Filtra processos que estão no estado 'Pronto' para serem movidos para 'Execução'
+    let processosProntos = processos.filter(p => p.estado === 'Pronto');
+
+    // Se há processos prontos e nenhum em execução, escolhe um para mover para "Execução"
+    if (!processoEmExecucao && processosProntos.length > 0) {
         let proximoExecucao = processosProntos[Math.floor(Math.random() * processosProntos.length)];
         proximoExecucao.estado = 'Execução';
         processoEmExecucao = proximoExecucao;
     }
 
+    // Atualiza a lista de processos que estão em "Espera"
     processos.forEach(processo => {
         if (processo.estado === 'Espera') {
             processo.tempoEmEspera += 5;
@@ -149,7 +177,10 @@ function alterarEstados() {
         }
     });
 
+    // Atualiza a lista de processos na tela
     atualizarLista();
 }
 
+// Executa a função alterarEstados a cada 5 segundos
 setInterval(alterarEstados, 5000);
+

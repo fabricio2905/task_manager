@@ -5,6 +5,10 @@ body {
     text-align: center;
 }
 
+.voltar {
+    width: 30px;
+}
+
 h1 {
     margin-top: 20px;
 }

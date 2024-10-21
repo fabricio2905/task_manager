@@ -12,7 +12,7 @@ app.use(express.static('public'));
 
 // Configurando sessões
 app.use(session({
-  secret: 'chave-secreta',  // Substitua por uma chave secreta de verdade
+  secret: 'chave-secreta', 
   resave: false,
   saveUninitialized: true,
 }));

@@ -5,12 +5,25 @@ body {
     text-align: center;
 }
 
-.voltar {
-    width: 30px;
-}
-
 h1 {
     margin-top: 20px;
+}
+
+.voltar {
+    position: absolute; 
+    top: 25px; 
+    left: 20px; 
+}
+
+.voltar a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.voltar i {
+    font-size: 24px;
+    color: #fff;
 }
 
 .process-form {
